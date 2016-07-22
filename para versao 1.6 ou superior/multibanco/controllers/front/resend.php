@@ -38,33 +38,38 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 		$folder = Tools::getValue("folder");
 		$token = Tools::getValue("token");
 		try{
-			
-			
+
+
 			$order = new Order($order_id);
-			
+
 			$referencia = $this->module->GenerateMbRef($this->module->ifmb_entidade,$this->module->ifmb_subentidade,$order_id,$order->total_paid);
-				
+
 			$cliente = new Customer($order->id_customer);
-				
+
+			$value = sprintf("%02u.02", $order->total_paid);
+
 			$data = array(
 				'{order_name}' => $order->reference,
 				'{firstname}' => $cliente->firstname,
 				'{lastname}' => $cliente->lastname,
 				'{entidade}' => $this->module->ifmb_entidade,
 				'{referencia}' => $referencia,
-				'{total_paid}' => $order->total_paid. ' €'
+				'{total_paid}' => $value . ' â‚¬'
 			);
-				
+
 			Mail::Send((int)$order->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,null, null, null, null, _PS_MAIL_DIR_, false, (int)$order->id_shop);
-				
+
 			$status = "sucesso";
 		} catch (Exception $e) {
 			$status = "erro";
 		}
-		
 
-		$redirect =  _PS_BASE_URL_."/" . $folder . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
-		
+		preg_match("/admin.+\//", $_SERVER['HTTP_REFERER'], $matches, PREG_OFFSET_CAPTURE);
+
+		$admin = rtrim($matches[0][0], "/");
+
+		$redirect =  _PS_BASE_URL_."/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
+
 		Tools::redirect($redirect);
 	}
 }

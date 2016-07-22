@@ -2,7 +2,7 @@
 	<div class="col-lg-12">
 		<div class="panel">
 			<div class="panel-heading">
-				<img src="{$this_path}logo.gif" alt="Endereço de entrega" />
+				<img src="{$this_path}logo.gif" alt="EndereÃ§o de entrega" />
 				Dados Multibanco
 			</div>
 			<div id="info">
@@ -21,10 +21,17 @@
 						</tr>
 						<tr>
 						  <td style="font-weight: bold; text-align: left;">Valor:</td>
-						  <td style="text-align: left;">{$valor}&nbsp;&euro;</td>
+						  <td style="text-align: left;">{$valor|string_format:"%.2f"}&nbsp;&euro;</td>
 						</tr>
 					</tbody>
 				</table>
+					<br /><br />
+					<div>
+						<a href="../?fc=module&module=multibanco&controller=resend&order_id={$order_id}&folder={$url_folder}&token={$token}" class="btn btn-primary">Reenviar Refer&ecirc;ncia ao Cliente</a>
+						&nbsp;&nbsp;
+						<a href="../?fc=module&module=multibanco&controller=remember&order_id={$order_id}&folder={$url_folder}&token={$token}" class="btn btn-primary">Lembrar Cliente sobre pagamento</a>
+					</div>
+					<br />
 			</div>
 		</div>
 	</div>
