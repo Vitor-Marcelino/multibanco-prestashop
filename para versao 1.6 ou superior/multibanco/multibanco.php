@@ -3,7 +3,7 @@
 if (!defined('_PS_VERSION_'))
 	exit;
 
-class MultiBanco extends PaymentModule
+class Multibanco extends PaymentModule
 {
 	private $_html = '';
 	private $_postErrors = array();

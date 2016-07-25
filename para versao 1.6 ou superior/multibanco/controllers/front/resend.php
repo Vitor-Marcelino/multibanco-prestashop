@@ -42,7 +42,7 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 
 			$order = new Order($order_id);
 
-			$mbOrderDetails = MultiBanco::getMultibancoOrderDetailsDb($order_id);
+			$mbOrderDetails = Multibanco::getMultibancoOrderDetailsDb($order_id);
 
 			$entidade = $mbOrderDetails["entidade"];
 			$referencia = $mbOrderDetails["referencia"];
