@@ -42,7 +42,11 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 
 			$order = new Order($order_id);
 
-			$referencia = $this->module->GenerateMbRef($this->module->ifmb_entidade,$this->module->ifmb_subentidade,$order_id,$order->total_paid);
+			$mbOrderDetails = MultiBanco::getMultibancoOrderDetailsDb($order_id);
+
+			$entidade = $mbOrderDetails["entidade"];
+			$referencia = $mbOrderDetails["referencia"];
+			$valor = $mbOrderDetails["valor"];
 
 			$cliente = new Customer($order->id_customer);
 
@@ -52,9 +56,9 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 				'{order_name}' => $order->reference,
 				'{firstname}' => $cliente->firstname,
 				'{lastname}' => $cliente->lastname,
-				'{entidade}' => $this->module->ifmb_entidade,
-				'{referencia}' => $referencia,
-				'{total_paid}' => $value . ' €'
+				'{entidade}' => $entidade,
+				'{referencia}' => chunk_split($referencia, 3, ' '),
+				'{total_paid}' => $valor . ' €'
 			);
 
 			Mail::Send((int)$order->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,null, null, null, null, _PS_MAIL_DIR_, false, (int)$order->id_shop);

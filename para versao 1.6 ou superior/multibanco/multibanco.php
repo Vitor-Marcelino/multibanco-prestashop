@@ -18,7 +18,7 @@ class MultiBanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.0.2';
+		$this->version = '5.1.0';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -274,24 +274,23 @@ class MultiBanco extends PaymentModule
 
 	function hookdisplayAdminOrder($params)
 	{
-
-
 		if (!$this->active)
 			return;
 
-		$order_id    = $params['id_order'];
+		$order_id = $params['id_order'];
 
 		$order = new Order($order_id);
-
 
 		//verifica se o método da encomenda é mesmo este ou não...
 		if($order->payment != $this->displayName)
 			return;
 
-
-		$ref = $this->GenerateMbRef($this->ifmb_entidade,$this->ifmb_subentidade,$order_id,$order->total_paid);
-
 		global $cookie,$smarty;
+
+		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($params['id_order']);
+		$entidade = $mbOrderDetails["entidade"];
+		$referencia = $mbOrderDetails["referencia"];
+		$valor = $mbOrderDetails["valor"];
 
 		$estado = "";
 
@@ -300,9 +299,9 @@ class MultiBanco extends PaymentModule
 		$url_folder_adm = $a_url_folder_adm[1];
 
 		$smarty->assign(array(
-			'entidade' 	=> $this->ifmb_entidade,
-			'referencia' => $ref,
-			'valor' 	=> $order->total_paid,
+			'entidade' 	=> $entidade,
+			'referencia' => chunk_split($referencia, 3, ' '),
+			'valor' 	=> $valor,
 			'order_id' 	=> $order_id,
 			'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
@@ -325,22 +324,24 @@ class MultiBanco extends PaymentModule
 
 		$order = new Order($order_id);
 
-		$ref = $this->GenerateMbRef($this->ifmb_entidade,$this->ifmb_subentidade,$order_id,$order->total_paid);
+		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($order_id);
+
+		$entidade = $mbOrderDetails["entidade"];
+		$referencia = $mbOrderDetails["referencia"];
+		$valor = $mbOrderDetails["valor"];
 
 		//verifica se o método da encomenda é mesmo este ou não...
 		if($order->payment != $this->displayName)
 			return;
 
-
 		$estado = "";
-
 
 		global $cookie,$smarty;
 
 		$smarty->assign(array(
-			'entidade' 	=> $this->ifmb_entidade,
-			'referencia' => $ref,
-			'total_paid' 	=> $order->total_paid,
+			'entidade' 	=> $entidade,
+			'referencia' => chunk_split($referencia, 3, ' '),
+			'total_paid' 	=> $valor,
 			'order_id' 	=> $order_id,
 			'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
@@ -521,8 +522,9 @@ class MultiBanco extends PaymentModule
 				$state == Configuration::get('PS_OS_OUTOFSTOCK') ||
 				$state < 14)
 		{
-			$entidade = $this->ifmb_entidade;
-			$referencia = $this->GenerateMbRef($this->ifmb_entidade,$this->ifmb_subentidade,$params['objOrder']->id,$params['total_to_pay']);
+			$mbDetails = $this->getMBDetails();
+			$entidade = $mbDetails[0];
+			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$params['objOrder']->id,$params['total_to_pay']);
 			$total = Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false);
 
 			$this->smarty->assign(array(
@@ -532,14 +534,12 @@ class MultiBanco extends PaymentModule
 				'status' => 'ok',
 				'id_order' => $params['objOrder']->id
 			));
+
 			if (isset($params['objOrder']->reference) && !empty($params['objOrder']->reference))
 				$this->smarty->assign('reference', $params['objOrder']->reference);
 
-
 			//envia email cliente com os dados de pagamento
 			$cliente = new Customer($params['objOrder']->id_customer);
-
-
 
 			$data = array(
 				'{order_name}' => $params['objOrder']->reference,
@@ -616,8 +616,6 @@ class MultiBanco extends PaymentModule
 		}
 	}
 
-
-
 	public function getMultibancoOrderDb($entidade,$referencia,$valor,$order = 0, $count=false)
 	{
 		$select="order_id";
@@ -638,6 +636,20 @@ class MultiBanco extends PaymentModule
 		');
 
 		return $pagamentos['order_id'];
+	}
+
+	public static function getMultibancoOrderDetailsDb($order)
+	{
+		$select = "entidade, referencia, valor";
+		$where  = ' order_id = '.$order.'';
+
+		$pagamentos = Db::getInstance()->getRow('
+			SELECT '.$select.'
+			FROM '._DB_PREFIX_.'multibanco
+			WHERE ' . $where . '
+		');
+
+		return $pagamentos;
 	}
 
 	public function updateMultibancoOrderDb($orderId, $set = '`chave` = \'PAGO\'')
@@ -710,9 +722,6 @@ class MultiBanco extends PaymentModule
 
 	function GenerateMbRef($ent_id, $subent_id, $order_id, $order_value)
 	{
-
-
-
 		$order_id ="0000".$order_id;
 
 		$order_value =  $this->format_number($order_value);
@@ -722,36 +731,33 @@ class MultiBanco extends PaymentModule
 
 
 		if ($order_value < 1){
-                 echo "Lamentamos mas é impossível gerar uma referência MB para valores inferiores a 1 Euro";
-                 return;
-           }
-           if ($order_value >= 1000000){
-                 echo "<b>AVISO:</b> Pagamento fraccionado por exceder o valor limite para pagamentos no sistema Multibanco<br>";
-           }
-           while ($order_value >= 1000000){
-                 $this->GenerateMbRef($order_id++, 999999.99);
-                 $order_value -= 999999.99;
-           }
+				echo "Lamentamos mas é impossível gerar uma referência MB para valores inferiores a 1 Euro";
+				return;
+		}
+		if ($order_value >= 1000000){
+				echo "<b>AVISO:</b> Pagamento fraccionado por exceder o valor limite para pagamentos no sistema Multibanco<br>";
+		}
+		while ($order_value >= 1000000){
+				$this->GenerateMbRef($order_id++, 999999.99);
+				$order_value -= 999999.99;
+		}
 
+		//cálculo dos check digits
+		$chk_str = sprintf('%05u%03u%04u%08u', $ent_id, $subent_id, $order_id, round($order_value*100));
 
-        //cálculo dos check digits
+		$chk_array = array(3, 30, 9, 90, 27, 76, 81, 34, 49, 5, 50, 15, 53, 45, 62, 38, 89, 17, 73, 51);
 
+		$chk_val=0;
 
-           $chk_str = sprintf('%05u%03u%04u%08u', $ent_id, $subent_id, $order_id, round($order_value*100));
+		for ($i = 0; $i < 20; $i++)
+		{
+				$chk_int = substr($chk_str, 19-$i, 1);
+				$chk_val += ($chk_int%10)*$chk_array[$i];
+		}
 
-           $chk_array = array(3, 30, 9, 90, 27, 76, 81, 34, 49, 5, 50, 15, 53, 45, 62, 38, 89, 17, 73, 51);
+		$chk_val %= 97;
 
-		   $chk_val=0;
-
-           for ($i = 0; $i < 20; $i++)
-           {
-                 $chk_int = substr($chk_str, 19-$i, 1);
-                 $chk_val += ($chk_int%10)*$chk_array[$i];
-           }
-
-           $chk_val %= 97;
-
-           $chk_digits = sprintf('%02u', 98-$chk_val);
+		$chk_digits = sprintf('%02u', 98-$chk_val);
 
        return $subent_id." ".substr($chk_str, 8, 3)." ".substr($chk_str, 11, 1).$chk_digits;
 
@@ -759,7 +765,7 @@ class MultiBanco extends PaymentModule
 
 	public function callback($chave, $entidade, $referencia, $valor)
 	{
-	global $link;
+		global $link;
 		$chaveReg = Configuration::get('MULTIBANCO_CHAVE_ANTI_PHISHING');
 		$context = Context::getContext();
 		$context->link = new Link();
@@ -781,6 +787,13 @@ class MultiBanco extends PaymentModule
 		}else{
 			echo 'Chave inv&aacute;lida...';
 		}
+	}
 
+	public function getMBDetails() {
+		$details = [];
+
+		array_push($details, $this->ifmb_entidade, $this->ifmb_subentidade);
+
+		return $details;
 	}
 }
