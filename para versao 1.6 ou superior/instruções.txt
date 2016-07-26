@@ -11,3 +11,10 @@ NOTA: SE JÁ TIVER UM MÓDULO DE MULTIBANCO INSTALADO DESINSTALE ANTES DE INSTALAR
 5. Clicar em "Carregar este módulo"
 
 6. Ir à secção "Pagamentos & Plataformas" e instale e configure o módulo com os dados fornecidos por nós.
+
+
+###########################
+# CONFIGURAÇÕES AVANÇADAS #
+###########################
+
+Para fazer override à função de gerar referências MB, substituindo a entidade e sub-entidade, deverá colocar o conteúdo do ficheiro override.zip na raiz do PrestaShop. A classe disponibilizada é apenas um boilerplate, deverão efetuar as alterações que considerem necessárias para o correto funcionamento.

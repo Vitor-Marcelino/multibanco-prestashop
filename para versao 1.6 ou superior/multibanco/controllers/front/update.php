@@ -27,7 +27,7 @@
 /**
  * @since 1.5.0
  */
-class MultibancoResendModuleFrontController extends ModuleFrontController
+class MultibancoUpdateModuleFrontController extends ModuleFrontController
 {
 	/**
 	 * @see FrontController::postProcess()
@@ -37,29 +37,17 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 		$order_id = Tools::getValue("order_id");
 		$folder = Tools::getValue("folder");
 		$token = Tools::getValue("token");
-		try{
 
-
+		try {
 			$order = new Order($order_id);
-
 			$mbOrderDetails = Multibanco::getMultibancoOrderDetailsDb($order_id);
 
 			$entidade = $mbOrderDetails["entidade"];
-			$referencia = $mbOrderDetails["referencia"];
-			$valor = $mbOrderDetails["valor"];
+			$subEntidade = substr($mbOrderDetails["referencia"], 0, 3);
 
-			$cliente = new Customer($order->id_customer);
+			$novaRef = $this->module->GenerateMbRef($entidade,$subEntidade,$order_id,$order->total_paid);
 
-			$data = array(
-				'{order_name}' => $order->reference,
-				'{firstname}' => $cliente->firstname,
-				'{lastname}' => $cliente->lastname,
-				'{entidade}' => $entidade,
-				'{referencia}' => chunk_split($referencia, 3, ' '),
-				'{total_paid}' => $valor . ' €'
-			);
-
-			Mail::Send((int)$order->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,null, null, null, null, _PS_MAIL_DIR_, false, (int)$order->id_shop);
+			Db::getInstance()->Execute('UPDATE `' . _DB_PREFIX_ . 'multibanco` SET referencia=\''.preg_replace("/\s+/", "", $novaRef).'\', valor=\''.number_format((float)$order->total_paid, 2, '.', '').'\' WHERE `order_id` = '.$order_id);
 
 			$status = "sucesso";
 		} catch (Exception $e) {
@@ -70,7 +58,7 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 
 		$admin = rtrim($matches[0][0], "/");
 
-		$redirect =  _PS_BASE_URL_."/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
+		$redirect =  _PS_BASE_URL_."/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoatualizacao=".$status;
 
 		Tools::redirect($redirect);
 	}
