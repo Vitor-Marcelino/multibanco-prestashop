@@ -50,6 +50,8 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 
 			$cliente = new Customer($order->id_customer);
 
+			$value = sprintf("%02u.02", $order->total_paid);
+
 			$data = array(
 				'{order_name}' => $order->reference,
 				'{firstname}' => $cliente->firstname,

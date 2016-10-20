@@ -18,7 +18,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.1.1';
+		$this->version = '5.1.3';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -287,7 +287,21 @@ class Multibanco extends PaymentModule
 
 		global $cookie,$smarty;
 
-		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($params['id_order']);
+		$order_id_gen = $this->getLinkedOrdersIfExist($order_id);
+
+		$linked_order_number  = array();
+		$linked_order_total = 0;
+		if(count($order_id_gen) > 1){
+
+			foreach ($order_id_gen as $val){
+				$linked_order_total ++;
+				$linked_order_number[] = $order_id_gen[0]['reference'] . "#" . $linked_order_total . ' (Encomenda: #' . str_pad($val["id_order"], 6, "0", STR_PAD_LEFT) . ')' ;
+			}
+		}
+
+		$order_id_extra = $order_id_gen[0]['id_order'];
+
+		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($order_id_extra);
 		$entidade = $mbOrderDetails["entidade"];
 		$referencia = $mbOrderDetails["referencia"];
 		$valor = $mbOrderDetails["valor"];
@@ -298,15 +312,18 @@ class Multibanco extends PaymentModule
 		$a_url_folder_adm = explode('/',$url_folder_adm);
 		$url_folder_adm = $a_url_folder_adm[1];
 
+
+
 		$smarty->assign(array(
 			'entidade' 	=> $entidade,
 			'referencia' => chunk_split($referencia, 3, ' '),
 			'valor' 	=> $valor,
 			'order_id' 	=> $order_id,
+			'linked_order' 	=> !empty($linked_order_number),
+			'linked_order_number' 	=> $linked_order_number,
 			'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
-			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
 			'this_path' 	=> $this->curPageURL().'modules/'.$this->name.'/',
 			'url_folder'	=> $url_folder_adm
 		));
@@ -323,9 +340,13 @@ class Multibanco extends PaymentModule
 
 		$order_id = $params['order']->id;
 
+		$order_id_gen = $this->getLinkedOrdersIfExist($order_id);
+
+		$order_id_extra = $order_id_gen[0]['id_order'];
+
 		$order = new Order($order_id);
 
-		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($order_id);
+		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($order_id_extra);
 
 		$entidade = $mbOrderDetails["entidade"];
 		$referencia = $mbOrderDetails["referencia"];
@@ -339,15 +360,27 @@ class Multibanco extends PaymentModule
 
 		global $cookie,$smarty;
 
+		$linked_order_number  = array();
+		$linked_order_total = 0;
+		if(count($order_id_gen) > 1){
+
+			foreach ($order_id_gen as $val){
+				$linked_order_total ++;
+				$linked_order_number[] = $order_id_gen[0]['reference'] . "#" . $linked_order_total;
+			}
+		}
+
+
 		$smarty->assign(array(
 			'entidade' 	=> $entidade,
 			'referencia' => chunk_split($referencia, 3, ' '),
 			'total_paid' 	=> $valor,
 			'order_id' 	=> $order_id,
+			'linked_order' 	=> !empty($linked_order_number),
+			'linked_order_number' 	=> $linked_order_number,
 			'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
-			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
 			'this_path' 	=> $this->curPageURL().'modules/'.$this->name.'/'
 		));
 
@@ -640,6 +673,12 @@ class Multibanco extends PaymentModule
 		return $pagamentos['order_id'];
 	}
 
+	public function getLinkedOrdersIfExist($orderid){
+		$pagamentos = Db::getInstance()->executeS('SELECT * FROM ' . _DB_PREFIX_ . 'orders WHERE reference IN (SELECT reference FROM ' . _DB_PREFIX_ . 'orders WHERE id_order = ' . pSQL($orderid) . ') ORDER BY id_order ASC', true, false);
+
+		return $pagamentos;
+	}
+
 	public static function getMultibancoOrderDetailsDb($order)
 	{
 		$select = "entidade, referencia, valor";
@@ -774,11 +813,20 @@ class Multibanco extends PaymentModule
 		if($chave == $chaveReg){
 			$orderId = $this->getMultibancoOrderDb($entidade, $referencia, $valor);
 
+
+
 			if(!empty($orderId)){
-				$new_history = new OrderHistory();
-				$new_history->id_order = (int)$orderId;
-				$new_history->changeIdOrderState((int)Configuration::get('MULTIBANCO_OS_1'), $orderId);
-				$new_history->addWithemail(true, null,$context);
+				$order_id_gen = $this->getLinkedOrdersIfExist($orderId);
+
+				//if(count($order_id_gen) > 1){
+
+					//foreach ($order_id_gen as $val){
+						$new_history = new OrderHistory();
+						$new_history->id_order = (int)$order_id_gen[count($order_id_gen)-1]["id_order"];
+						$new_history->changeIdOrderState((int)Configuration::get('MULTIBANCO_OS_1'), $orderId);
+						$new_history->addWithemail(true, null, $context);
+					//}
+				//}
 
 				$this->updateMultibancoOrderDb($orderId);
 
@@ -792,7 +840,7 @@ class Multibanco extends PaymentModule
 	}
 
 	public function getMBDetails() {
-		$details = [];
+		$details = array();
 
 		array_push($details, $this->ifmb_entidade, $this->ifmb_subentidade);
 

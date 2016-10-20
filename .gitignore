@@ -30,3 +30,5 @@ admin-dev/import/
 download/
 /img/*
 upload/
+.DS_Store
+config_pt.xml

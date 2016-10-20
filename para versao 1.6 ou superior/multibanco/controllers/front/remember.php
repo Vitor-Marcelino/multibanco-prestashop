@@ -51,6 +51,8 @@ class MultibancoRememberModuleFrontController extends ModuleFrontController
 
 			$cliente = new Customer($order->id_customer);
 
+			$value = sprintf("%02u.02", $order->total_paid);
+
 			$data = array(
 				'{order_name}' => $order->reference,
 				'{firstname}' => $cliente->firstname,
@@ -71,7 +73,7 @@ class MultibancoRememberModuleFrontController extends ModuleFrontController
 
 		$admin = rtrim($matches[0][0], "/");
 
-		$redirect =  _PS_BASE_URL_."/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadolembrete=".$status;
+		$redirect =  _PS_BASE_URL_."/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
 
 		Tools::redirect($redirect);
 	}
