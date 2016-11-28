@@ -18,7 +18,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.1.3';
+		$this->version = '5.1.4';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -553,10 +553,11 @@ class Multibanco extends PaymentModule
 			return;
 
 		$state = $params['objOrder']->getCurrentState();
-		if ($state == Configuration::get('MULTIBANCO_OS_0') ||
+	/*	if ($state == Configuration::get('MULTIBANCO_OS_0') ||
 				$state == Configuration::get('PS_OS_OUTOFSTOCK') ||
 				$state < 14)
-		{
+		{*/
+		if (in_array($state, array(Configuration::get('MULTIBANCO_OS_0'), Configuration::get('PS_OS_OUTOFSTOCK'), Configuration::get('PS_OS_OUTOFSTOCK_UNPAID')))){
 			$mbDetails = $this->getMBDetails();
 			$entidade = $mbDetails[0];
 			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$params['objOrder']->id,$params['total_to_pay']);
