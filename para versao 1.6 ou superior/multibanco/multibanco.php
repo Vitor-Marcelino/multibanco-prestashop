@@ -18,7 +18,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.1.4';
+		$this->version = '5.1.5';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -471,8 +471,6 @@ class Multibanco extends PaymentModule
 
 	private function _displayCallbackForm()
 	{
-		$t = "ola
-		ola";
 		$this->_html .='<br /><br />
 			<fieldset>
 			<legend><img src="../modules/multibanco/logo.gif" />Dados Callback</legend>
@@ -482,7 +480,7 @@ class Multibanco extends PaymentModule
 							URL Callback
 						</td>
 						<td>
-							<b>'.$this->curPageURL().'modules/'.$this->name.'/callback/callback.php?chave=[CHAVE_ANTI_PHISHING]&entidade=[ENTIDADE]&referencia=[REFERENCIA]&valor=[VALOR]</b>
+							<b>'.$this->context->link->getModuleLink('multibanco', 'callback').'?chave=[CHAVE_ANTI_PHISHING]&entidade=[ENTIDADE]&referencia=[REFERENCIA]&valor=[VALOR]</b>
 						</td>
 					</tr>
 					<tr>
