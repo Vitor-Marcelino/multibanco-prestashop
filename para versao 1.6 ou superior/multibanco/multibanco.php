@@ -18,7 +18,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.1.5';
+		$this->version = '5.1.6';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -250,6 +250,14 @@ class Multibanco extends PaymentModule
 			!$this->registerHook('header'))
 			return false;
 
+			if (version_compare(_PS_VERSION_, '1.6.1.0', '>='))
+			{
+				if (! $this->registerHook('displayPaymentEU')){
+					return false;
+				}
+
+			}
+
 		Configuration::updateValue('MULTIBANCO_CHAVE_ANTI_PHISHING', md5(time()));
 
 
@@ -332,6 +340,24 @@ class Multibanco extends PaymentModule
 
 		return $this->display(__FILE__, '/admin.tpl');
 	}
+
+	public function hookDisplayPaymentEU($params)
+	{
+		if (!$this->active)
+			return;
+
+		if (!$this->checkCurrency($params['cart']))
+			return;
+
+		$payment_options = array(
+			'cta_text' => $this->l('Pagamento por Multibanco'),
+			'logo' => Media::getMediaPath(_PS_MODULE_DIR_.$this->name.'/multibanco.jpg'),
+			'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true)
+		);
+
+		return $payment_options;
+	}
+
 
 	function hookdisplayOrderDetail($params)
 	{
