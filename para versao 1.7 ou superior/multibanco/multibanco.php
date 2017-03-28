@@ -22,7 +22,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.2.0';
+		$this->version = '5.2.1';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -344,6 +344,7 @@ class Multibanco extends PaymentModule
 			'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
+			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
 			'this_path' 	=> $this->curPageURL().'modules/'.$this->name.'/',
 			'url_folder'	=> $url_folder_adm
 		));
@@ -440,6 +441,7 @@ class Multibanco extends PaymentModule
 			'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
+			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
 			'this_path' 	=> $this->curPageURL().'modules/'.$this->name.'/',
 			'print_history_details' =>$this->fetch(_PS_MODULE_DIR_ . 'multibanco/views/templates/hook/history_detail.tpl'),
 		));
