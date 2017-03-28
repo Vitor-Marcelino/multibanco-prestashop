@@ -73,7 +73,7 @@ class MultibancoRememberModuleFrontController extends ModuleFrontController
 
 		$admin = rtrim($matches[0][0], "/");
 
-		$redirect =  _PS_BASE_URL_."/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
+		$redirect =  _PS_BASE_URL_."/" . $folder . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
 
 		Tools::redirect($redirect);
 	}
