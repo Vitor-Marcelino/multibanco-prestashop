@@ -34,7 +34,11 @@ class MultibancoValidationModuleFrontController extends ModuleFrontController
 		$total = (float)$cart->getOrderTotal(true, Cart::BOTH);
 
 
-		$mailVars = array();
+		
+
+		$mailVars = array(
+			'{mb_logo}' => _PS_BASE_URL_ ._MODULE_DIR_.$this->module->name.'/multibanco.jpg'
+		);
 
 
 

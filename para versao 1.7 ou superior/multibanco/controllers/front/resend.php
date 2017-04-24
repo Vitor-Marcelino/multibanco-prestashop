@@ -56,7 +56,8 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 				'{lastname}' => $cliente->lastname,
 				'{entidade}' => $entidade,
 				'{referencia}' => chunk_split($referencia, 3, ' '),
-				'{total_paid}' => $valor . ' €'
+				'{total_paid}' => $valor . ' €',
+				'{mb_logo}' => _PS_BASE_URL_ ._MODULE_DIR_.$this->module->name.'/multibanco.jpg'
 			);
 
 			Mail::Send((int)$order->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,null, null, null, null, _PS_MAIL_DIR_, false, (int)$order->id_shop);

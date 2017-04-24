@@ -2,12 +2,12 @@
 <p>A sua encomenda em {$shop_name} est&aacute; conclu&iacute;da
 		<br /><br />
 		Por favor utilize os dados abaixo para proceder ao pagamento da sua encomenda.
-		
+
 		<table cellpadding="0" cellspacing="0" style="margin:auto;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black; width: 211px;" >
 			<tbody>
 				<tr>
 					<td valign="top" style="border-bottom: solid 1px #222; padding-top: 5px; padding-bottom: 5px;">
-						<img src="http://dl.dropbox.com/u/14494130/ifmb/imagensmodulos/mb.gif" border="0">
+						<img src="../modules/multibanco/logo_mb.png" border="0" style="width: 50px;">
 					</td>
 					<td valign="middle" width="100%" style="padding-left: 10px; border-bottom: solid 1px #222; padding-top: 5px; padding-bottom: 5px; ">
 						Pagamento por Multibanco&nbsp;&nbsp;
@@ -40,14 +40,14 @@
 				</tr>
 			</tbody>
 		</table>
-		
+
 		<br /><br />
 		Um email foi enviado com esta informa&ccedil;&atilde;o.
-		
+
 		<br /><br /> <strong>
 		A sua encomenda ser&aacute; enviada assim que o pagamento for confirmado.
 		</strong>
-		
+
 		<br /><br />
 		Se tiver d&uacute;vidas, coment&aacute;rios ou sugest&otilde;es, entre em contato com a nossa <a href="{$link->getPageLink('contact', true)}">Equipa de Apoio ao Cliente</a>.
 	</p>

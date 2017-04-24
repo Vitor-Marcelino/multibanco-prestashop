@@ -36,7 +36,7 @@
 					<br />
 					<br />
 				{/if}
-					<div>{debug}
+					<div>
 						<a href="{$base_url}?fc=module&module=multibanco&controller=update&order_id={$order_id}&folder={$url_folder}&token={$token}" class="btn btn-primary">Atualizar Dados Multibanco</a>
 						<a href="{$base_url}?fc=module&module=multibanco&controller=resend&order_id={$order_id}&folder={$url_folder}&token={$token}" class="btn btn-primary">Reenviar Refer&ecirc;ncia ao Cliente</a>
 						&nbsp;&nbsp;
