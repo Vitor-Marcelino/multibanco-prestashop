@@ -646,7 +646,8 @@ class Multibanco extends PaymentModule
 				'{lastname}' => $cliente->lastname,
 				'{entidade}' => $entidade,
 				'{referencia}' => $referencia,
-				'{total_paid}' => $total
+				'{total_paid}' => $total,
+				'{mb_logo}' => _PS_BASE_URL_ ._MODULE_DIR_.'/multibanco/multibanco.jpg'
 			);
 
 			Mail::Send((int)$order->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,
