@@ -594,7 +594,8 @@ class Multibanco extends PaymentModule
 				'referencia' => $referencia,
 				'total_paid' => $total,
 				'status' => 'ok',
-				'id_order' => $params['objOrder']->id
+				'id_order' => $params['objOrder']->id,
+				'mb_logo' => _PS_BASE_URL_ ._MODULE_DIR_.'/multibanco/multibanco.jpg'
 			));
 
 			if (isset($params['objOrder']->reference) && !empty($params['objOrder']->reference))

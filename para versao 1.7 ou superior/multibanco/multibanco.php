@@ -631,7 +631,8 @@ class Multibanco extends PaymentModule
 				'referencia' => $referencia,
 				'total_paid' => $total,
 				'status' => 'ok',
-				'id_order' => $order->id
+				'id_order' => $order->id,
+				'mb_logo' => _PS_BASE_URL_ ._MODULE_DIR_.'/multibanco/multibanco.jpg'
 			));
 
 			if (isset($order->reference) && !empty($order->reference))
@@ -658,6 +659,7 @@ class Multibanco extends PaymentModule
 		}
 		else
 			$this->smarty->assign('status', 'failed');
+
 		return $this->fetch(_PS_MODULE_DIR_ . 'multibanco/views/templates/hook/payment_return.tpl');
 	}
 
