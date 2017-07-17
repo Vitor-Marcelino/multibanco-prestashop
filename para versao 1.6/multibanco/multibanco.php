@@ -323,6 +323,7 @@ class Multibanco extends PaymentModule
 
 
 		$smarty->assign(array(
+			'shop_name' => $this->context->shop->name,
 			'entidade' 	=> $entidade,
 			'referencia' => chunk_split($referencia, 3, ' '),
 			'valor' 	=> $valor,
@@ -399,13 +400,14 @@ class Multibanco extends PaymentModule
 
 
 		$smarty->assign(array(
+			'shop_name' => $this->context->shop->name,
 			'entidade' 	=> $entidade,
 			'referencia' => chunk_split($referencia, 3, ' '),
 			'total_paid' 	=> $valor,
 			'order_id' 	=> $order_id,
 			'linked_order' 	=> !empty($linked_order_number),
 			'linked_order_number' 	=> $linked_order_number,
-			'token' 	=> $this->context->controller->token,
+			//'token' 	=> $this->context->controller->token,
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
 			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
@@ -567,6 +569,7 @@ class Multibanco extends PaymentModule
 
 
 		$this->smarty->assign(array(
+			'shop_name' => $this->context->shop->name,
 			'this_path' => $this->_path,
 			'this_path_ssl' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->name.'/'
 		));
@@ -590,6 +593,7 @@ class Multibanco extends PaymentModule
 			$total = Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false);
 
 			$this->smarty->assign(array(
+				'shop_name' => $this->context->shop->name,
 				'entidade' => $entidade,
 				'referencia' => $referencia,
 				'total_paid' => $total,
