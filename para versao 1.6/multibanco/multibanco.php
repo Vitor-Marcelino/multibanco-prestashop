@@ -18,7 +18,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.1.7';
+		$this->version = '5.1.8';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
