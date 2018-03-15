@@ -22,7 +22,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.2.2';
+		$this->version = '5.2.3';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -359,6 +359,10 @@ class Multibanco extends PaymentModule
 	{
 		if (!$this->active) {
 			return;
+		}
+
+		if (Module::isInstalled('ps_legalcompliance') && Module::isEnabled('ps_legalcompliance')) {
+		    return null;
 		}
 
 		if (!$this->checkCurrency($params['cart'])) {
