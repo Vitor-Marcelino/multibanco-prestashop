@@ -22,7 +22,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.2.3';
+		$this->version = '5.2.4';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -262,14 +262,6 @@ class Multibanco extends PaymentModule
 		 	!$this->registerHook('paymentOptions'))
 			return false;
 
-			if (version_compare(_PS_VERSION_, '1.6.1.0', '>='))
-			{
-				if (! $this->registerHook('displayPaymentEU')){
-					return false;
-				}
-
-			}
-
 		Configuration::updateValue('MULTIBANCO_CHAVE_ANTI_PHISHING', md5(time()));
 
 
@@ -361,40 +353,18 @@ class Multibanco extends PaymentModule
 			return;
 		}
 
-		if (Module::isInstalled('ps_legalcompliance') && Module::isEnabled('ps_legalcompliance')) {
-		    return null;
-		}
-
 		if (!$this->checkCurrency($params['cart'])) {
 			return;
-		}
+    }
+    
 
-		$newOption = new PaymentOption();
-		$newOption->setCallToActionText($this->l('Pagamento por Multibanco'))
-			->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true));
-		$payment_options = [
-			$newOption,
-		];
 
-		return $payment_options;
-	}
+    $newOption = new PaymentOption();
+    $newOption->setModuleName($this->name)
+            ->setCallToActionText($this->l('Pagamento por Multibanco'))
+            ->setAction($this->context->link->getModuleLink($this->name, 'validation', array(), true));
 
-	public function hookDisplayPaymentEU($params)
-	{
-		if (!$this->active) {
-			return;
-		}
-
-		if (!$this->checkCurrency($params['cart'])) {
-			return;
-		}
-
-		$payment_options = [
-			'cta_text' => $this->l('Pagamento por Multibanco'),
-			'action' => $this->context->link->getModuleLink($this->name, 'validation', array(), true)
-		];
-
-		return $payment_options;
+    return [$newOption];
 	}
 
 
