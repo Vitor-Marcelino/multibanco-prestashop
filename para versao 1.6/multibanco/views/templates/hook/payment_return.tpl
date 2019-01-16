@@ -3,7 +3,7 @@
 		<br /><br />
 		Por favor utilize os dados abaixo para proceder ao pagamento da sua encomenda.
 
-		<table cellpadding="0" cellspacing="0" style="margin:auto;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black; width: 211px;" >
+		<table cellpadding="0" cellspacing="0" style="margin-top:20px;border-left: 1px solid black;border-right: 1px solid black;border-top: 1px solid black; width: 211px;" >
 			<tbody>
 				<tr>
 					<td valign="top" style="border-bottom: solid 1px #222; padding-top: 5px; padding-bottom: 5px;">
