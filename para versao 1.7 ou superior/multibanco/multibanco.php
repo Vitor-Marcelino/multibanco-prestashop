@@ -630,7 +630,7 @@ class Multibanco extends PaymentModule
 			);
 
 			Mail::Send((int)$order->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,
-					null, null, null, null, _PS_MAIL_DIR_, false, (int)$order->id_shop);
+					null, null, null, null, dirname(__FILE__) . '\mails/', false, (int)$order->id_shop);
 
 			//guardar dados em base de dados para controlo callback
 			$this->setMultibancoOrderDb($order->id,$entidade,$referencia,$order->getOrdersTotalPaid());
