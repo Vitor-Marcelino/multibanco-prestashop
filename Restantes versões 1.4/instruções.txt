@@ -1,4 +1,4 @@
-1. Compactar a pasta multibanco em Zip
+1. Compactar a pasta multibanco em um arquivo Zip
 
 2. Entrar na área de administração do seu prestashop
 
