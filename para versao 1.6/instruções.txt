@@ -1,20 +1,22 @@
-NOTA: SE JÁ TIVER UM MÓDULO DE MULTIBANCO INSTALADO DESINSTALE ANTES DE INSTALAR A NOVA VERSÃO
+NOTA: SE JÃ TIVER UM MÃ“DULO DE MULTIBANCO INSTALADO DESINSTALE ANTES DE INSTALAR A NOVA VERSÃƒO
 
-1. Entrar na área de administração do seu prestashop
+1. Compactar a pasta multibanco em arquivo Zip
 
-2. Ir à secção dos módulos > módulos
+2. Entrar na Ã¡rea de administraÃ§Ã£o do seu prestashop
 
-3. Clicar onde diz "Adicionar novo módulo"
+3. Ir Ã  secÃ§Ã£o dos mÃ³dulos > mÃ³dulos
 
-4. Onde tem "Ficheiro do módulo" clique onde diz "Escolher Arquivo" e seleccione o ficheiro multibanco.zip correspondente à sua versão.
+4. Clicar onde diz "Adicionar novo mÃ³dulo"
 
-5. Clicar em "Carregar este módulo"
+5. Onde tem "Ficheiro do mÃ³dulo" clique onde diz "Escolher Arquivo" e seleccione o ficheiro multibanco.zip correspondente Ã  sua versÃ£o.
 
-6. Ir à secção "Pagamentos & Plataformas" e instale e configure o módulo com os dados fornecidos por nós.
+6. Clicar em "Carregar este mÃ³dulo"
+
+7. Ir Ã  secÃ§Ã£o "Pagamentos & Plataformas" e instale e configure o mÃ³dulo com os dados fornecidos por nÃ³s.
 
 
 ###########################
-# CONFIGURAÇÕES AVANÇADAS #
+# CONFIGURAÃ‡Ã•ES AVANÃ‡ADAS #
 ###########################
 
-Para fazer override à função de gerar referências MB, substituindo a entidade e sub-entidade, deverá colocar o conteúdo do ficheiro override.zip na raiz do PrestaShop. A classe disponibilizada é apenas um boilerplate, deverão efetuar as alterações que considerem necessárias para o correto funcionamento.
+Para fazer override Ã  funÃ§Ã£o de gerar referÃªncias MB, substituindo a entidade e sub-entidade, deverÃ¡ colocar o conteÃºdo do ficheiro override.zip na raiz do PrestaShop. A classe disponibilizada Ã© apenas um boilerplate, deverÃ£o efetuar as alteraÃ§Ãµes que considerem necessÃ¡rias para o correto funcionamento.
