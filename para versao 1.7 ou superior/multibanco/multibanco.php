@@ -22,7 +22,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->name = 'multibanco';
 		$this->tab = 'payments_gateways';
-		$this->version = '5.2.4';
+		$this->version = '5.2.6';
 		$this->author = 'IfthenPay, Lda';
 
 		$this->currencies = true;
@@ -33,7 +33,7 @@ class Multibanco extends PaymentModule
 
 		$this->controllers = array('callback', 'payment', 'remember', 'resend', 'validation');
 
-		$config = Configuration::getMultiple(array('MULTIBANCO_ENTIDADE', 'MULTIBANCO_SUBENTIDADE', 'MULTIBANCO_CHAVE_ANTI_PHISHING', 'MULTIBANCO_OS_0', 'MULTIBANCO_OS_1'));
+		$config = Configuration::getMultiple(array('MULTIBANCO_ENTIDADE', 'MULTIBANCO_SUBENTIDADE', 'MULTIBANCO_CHAVE_ANTI_PHISHING', 'MULTIBANCO_OS_0', 'MULTIBANCO_OS_1', 'MULTIBANCO_VERSION'));
 		if (isset($config['MULTIBANCO_ENTIDADE']))
 			$this->ifmb_entidade = $config['MULTIBANCO_ENTIDADE'];
 
@@ -46,8 +46,12 @@ class Multibanco extends PaymentModule
 		if (isset($config['MULTIBANCO_OS_0']))
 			$this->ifmb_os_0 = $config['MULTIBANCO_OS_0'];
 
-		if (isset($config['MULTIBANCO_OS_1']))
-			$this->ifmb_os_1 = $config['MULTIBANCO_OS_1'];
+      if (isset($config['MULTIBANCO_OS_1']))
+      $this->ifmb_os_1 = $config['MULTIBANCO_OS_1'];
+      
+
+    $this->upgradeModule($config);
+    
 
 		parent::__construct();
 
@@ -58,66 +62,84 @@ class Multibanco extends PaymentModule
 			$this->warning = 'Deve configurar a Entidade e Subentidade antes de utilizar o m&oacute;dulo IFmb - Pagamentos por Refer&ecirc;ncias Multibanco...';
 		if (!count(Currency::checkPaymentCurrencies($this->id)))
 			$this->warning = 'N&atilde;o foi definido qualquer moeda para este modulo.';
-	}
+  }
+  
+  private function upgradeModule($config)
+  {
+    if (!isset($config['MULTIBANCO_VERSION']) || (isset($config['MULTIBANCO_VERSION']) && $config['MULTIBANCO_VERSION'] !== $this->version))
+    {
+			$this->registerHook('displayAdminOrder');
+			$this->registerHook('displayOrderDetail');
+			$this->registerHook('displayAdminOrderContentOrder');
+      $this->registerHook('actionValidateOrder');
+      
 
-	public function create_states()
-	{
+      Configuration::updateValue('MULTIBANCO_VERSION', $this->version);
+    }
+  }
 
-		$this->order_state = 	array(
-									array( 'ffff00', '00100000000', 'Aguardar pagamento por Multibanco',  'multibanco',  'multibanco'),
-									array( '00ffff', '11101001000', 'Confirmado pagamento por Multibanco',	 'payment',  'multibanco')
-								);
+  public function create_states()
+  {
+	  $sql = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name`=("multibanco")';
+	  $order_status = Db::getInstance()->ExecuteS($sql);
 
-		/** OBTENDO UMA LISTA DOS IDIOMAS  **/
-		$languages = Db::getInstance()->ExecuteS('
-		SELECT `id_lang`, `iso_code`
-		FROM `'._DB_PREFIX_.'lang`
-		');
-		/** /OBTENDO UMA LISTA DOS IDIOMAS  **/
+	  $this->order_state = 	array(
+								  array( 'ffff00', '00100000000', 'Aguardar pagamento por Multibanco',  'multibanco',  'multibanco'),
+								  array( '00ffff', '11101001000', 'Confirmado pagamento por Multibanco',	 'payment',  'multibanco')
+							  );
 
-		/** INSTALANDO STATUS MULTIBANCO **/
-		foreach ($this->order_state as $key => $value)
-		{
-			/** CRIANDO OS STATUS NA TABELA order_state **/
-			Db::getInstance()->Execute
-			('
-				INSERT INTO `' . _DB_PREFIX_ . 'order_state`
-			( `invoice`, `send_email`, `module_name`, `color`, `unremovable`, `hidden`, `logable`, `delivery`, `shipped`, `paid`, `deleted`)
-				VALUES
-			( ' . $value[1][0] . ', ' . $value[1][1] . ', \''.$value[4].'\', \'#'.$value[0].'\', ' . $value[1][2] . ', ' . $value[1][3] . ', ' . $value[1][4] . ', ' . $value[1][5] . ', ' . $value[1][6] . ', ' . $value[1][7] . ', ' . $value[1][10] . ');
-			');
-			/** /CRIANDO OS STATUS NA TABELA order_state **/
+	  /** OBTENDO UMA LISTA DOS IDIOMAS  **/
+	  $languages = Db::getInstance()->ExecuteS('
+	  SELECT `id_lang`, `iso_code`
+	  FROM `'._DB_PREFIX_.'lang`
+	  ');
+	  /** /OBTENDO UMA LISTA DOS IDIOMAS  **/
+	  
+	  // verifica se já existem os estados na base de dados
+	  if(count($order_status) === 0) {
+		  /** INSTALANDO STATUS MULTIBANCO **/
+		  foreach ($this->order_state as $key => $value)
+		  {
+			  /** CRIANDO OS STATUS NA TABELA order_state **/
+			  Db::getInstance()->Execute
+			  ('
+				  INSERT INTO `' . _DB_PREFIX_ . 'order_state`
+			  ( `invoice`, `send_email`, `module_name`, `color`, `unremovable`, `hidden`, `logable`, `delivery`, `shipped`, `paid`, `deleted`)
+				  VALUES
+			  ( ' . $value[1][0] . ', ' . $value[1][1] . ', \''.$value[4].'\', \'#'.$value[0].'\', ' . $value[1][2] . ', ' . $value[1][3] . ', ' . $value[1][4] . ', ' . $value[1][5] . ', ' . $value[1][6] . ', ' . $value[1][7] . ', ' . $value[1][10] . ');
+			  ');
+			  /** /CRIANDO OS STATUS NA TABELA order_state **/
 
-			//$this->figura 	= mysql_insert_id();
-			$this->figura 	= Db::getInstance()->Insert_ID();
+			  //$this->figura 	= mysql_insert_id();
+			  $this->figura 	= Db::getInstance()->Insert_ID();
 
-			//echo $this->figura;
+			  //echo $this->figura;
 
-			foreach ( $languages as $language_atual )
-			{
-				/** CRIANDO AS DESCRIÇÕES DOS STATUS NA TABELA order_state_lang  **/
-				Db::getInstance()->Execute
-				('
-					INSERT INTO `' . _DB_PREFIX_ . 'order_state_lang`
-				(`id_order_state`, `id_lang`, `name`, `template`)
-					VALUES
-				('.$this->figura .', '.$language_atual['id_lang'].', \''.$value[2].'\', \''.$value[3].'\');
-				');
-				/** /CRIANDO AS DESCRIÇÕES DOS STATUS NA TABELA order_state_lang  **/
-			}
+			  foreach ( $languages as $language_atual )
+			  {
+				  /** CRIANDO AS DESCRIÇÕES DOS STATUS NA TABELA order_state_lang  **/
+				  Db::getInstance()->Execute
+				  ('
+					  INSERT INTO `' . _DB_PREFIX_ . 'order_state_lang`
+				  (`id_order_state`, `id_lang`, `name`, `template`)
+					  VALUES
+				  ('.$this->figura .', '.$language_atual['id_lang'].', \''.$value[2].'\', \''.$value[3].'\');
+				  ');
+				  /** /CRIANDO AS DESCRIÇÕES DOS STATUS NA TABELA order_state_lang  **/
+			  }
 
-			/** COPIANDO O ICONE ATUAL **/
-			$this->smartCopy((dirname(__file__) . "/logo.gif"),(dirname( dirname (dirname(__file__) ) ) .  "/img/os/$this->figura.gif"));
-			/** /COPIANDO O ICONE ATUAL **/
+			  /** COPIANDO O ICONE ATUAL **/
+			  $this->smartCopy((dirname(__file__) . "/logo.gif"),(dirname( dirname (dirname(__file__) ) ) .  "/img/os/$this->figura.gif"));
+			  /** /COPIANDO O ICONE ATUAL **/
 
-    		/** GRAVA AS CONFIGURAÇÕES  **/
-    		Configuration::updateValue("MULTIBANCO_OS_$key", 	$this->figura);
+			  /** GRAVA AS CONFIGURAÇÕES  **/
+			  Configuration::updateValue("MULTIBANCO_OS_$key", 	$this->figura);
 
 
-			/** CRIANDO A Tabela de Registo de referências multibanco  **/
-				Db::getInstance()->Execute
-				('
-					CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'multibanco`(
+			  /** CRIANDO A Tabela de Registo de referências multibanco  **/
+				  Db::getInstance()->Execute
+				  ('
+					  CREATE TABLE IF NOT EXISTS `' . _DB_PREFIX_ . 'multibanco`(
 					  `id` int(11) NOT NULL AUTO_INCREMENT,
 					  `order_id` int(11) NOT NULL,
 					  `entidade` int(11) NOT NULL,
@@ -125,40 +147,43 @@ class Multibanco extends PaymentModule
 					  `valor` decimal(10,2) NOT NULL,
 					  `chave` varchar(50) DEFAULT NULL,
 					  PRIMARY KEY (`id`)
-					) ENGINE=InnoDB  DEFAULT CHARSET=latin1;'
-				);
-				/** /CRIANDO A Tabela de Registo de referências multibanco  **/
+					  ) ENGINE=InnoDB  DEFAULT CHARSET=latin1;'
+				  );
+				  /** /CRIANDO A Tabela de Registo de referências multibanco  **/
 
-		}
+		  }
+	  }
+
+	  
 
 
-		foreach ( $languages as $language_atual )
-		{
-			/** COPIANDO O MAIL ATUAL **/
-			if (version_compare(_PS_VERSION_, '1.6', '<'))
-			{
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.html"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.txt"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_conf.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.html"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_conf.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.txt"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.html"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.txt"));
-			}
-			else
-			{
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_16.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.html"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_16.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.txt"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_conf_16.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.html"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_conf_16.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.txt"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.html"));
-				$this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.txt"));
-			}
-			/** /COPIANDO O MAIL ATUAL **/
-		}
+	  foreach ( $languages as $language_atual )
+	  {
+		  /** COPIANDO O MAIL ATUAL **/
+		  if (version_compare(_PS_VERSION_, '1.6', '<'))
+		  {
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.html"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.txt"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_conf.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.html"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_conf.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.txt"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.html"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.txt"));
+		  }
+		  else
+		  {
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_16.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.html"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_16.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco.txt"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_conf_16.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.html"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_conf_16.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_conf.txt"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.html"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.html"));
+			  $this->smartCopy((dirname(__file__) . "/mails/multibanco_relembrar.txt"),(dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.txt"));
+		  }
+		  /** /COPIANDO O MAIL ATUAL **/
+	  }
 
-		return true;
+	  return true;
 
-	}
+  }
 
 	public function delete_create_states()
 	{
@@ -179,8 +204,8 @@ class Multibanco extends PaymentModule
 			unlink((dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.txt"));
 		}
 
-		Configuration::deleteByName("MULTIBANCO_OS_0");
-		Configuration::deleteByName("MULTIBANCO_OS_1");
+		//Configuration::deleteByName("MULTIBANCO_OS_0");
+		//Configuration::deleteByName("MULTIBANCO_OS_1");
 
 
 		return true;
@@ -258,8 +283,11 @@ class Multibanco extends PaymentModule
 			!$this->registerHook('paymentReturn') OR
 			!$this->registerHook('displayAdminOrder') OR
 			!$this->registerHook('displayOrderDetail') OR
+			!$this->registerHook('displayAdminOrderContentOrder') OR
+			!$this->registerHook('actionValidateOrder') OR
+			!$this->registerHook('actionOrderEdited') OR
 			!$this->registerHook('header') OR
-		 	!$this->registerHook('paymentOptions'))
+       !$this->registerHook('paymentOptions'))
 			return false;
 
 		Configuration::updateValue('MULTIBANCO_CHAVE_ANTI_PHISHING', md5(time()));
@@ -282,7 +310,29 @@ class Multibanco extends PaymentModule
 			return false;
 
         return true;
-	}
+  }
+  
+  public function hookActionOrderEdited($params)
+  {
+		if (!$this->active) {
+			return;
+    }
+
+    if (Dispatcher::getInstance()->getController() === "AdminOrders") {
+      $this->setPaymentToDb($params);
+    }
+  }
+  
+  public function hookActionValidateOrder($params)
+  {
+		if (!$this->active) {
+			return;
+    }
+
+    if (Dispatcher::getInstance()->getController() === "AdminOrders") {
+      $this->setPaymentToDb($params);
+    }
+  }
 
 	function hookdisplayAdminOrder($params)
 	{
@@ -345,7 +395,7 @@ class Multibanco extends PaymentModule
 
 
 		return $this->fetch(_PS_MODULE_DIR_ . 'multibanco/views/templates/hook/admin.tpl');
-	}
+  }
 
 	public function hookPaymentOptions($params)
 	{
@@ -367,6 +417,13 @@ class Multibanco extends PaymentModule
     return [$newOption];
 	}
 
+  function hookDisplayAdminOrderContentOrder($params)
+  {
+    if (!$this->active) {
+			return;
+    }
+    $order = $params['order'];
+  }
 
 	function hookDisplayOrderDetail($params)
 	{
@@ -592,13 +649,26 @@ class Multibanco extends PaymentModule
 			return;
 
 		//$state = $params['objOrder']->getCurrentState();
-
-		$order = $params['order'];
+    $order = $params['order'];
 		$state = $order->getCurrentState();
 
 
 		if (in_array($state, array(Configuration::get('MULTIBANCO_OS_0'), Configuration::get('PS_OS_OUTOFSTOCK'), Configuration::get('PS_OS_OUTOFSTOCK_UNPAID')))){
-			$mbDetails = $this->getMBDetails();
+      $this->setPaymentToDb($params);
+    }
+    else
+      $this->smarty->assign('status', 'failed');
+
+		return $this->fetch(_PS_MODULE_DIR_ . 'multibanco/views/templates/hook/payment_return.tpl');
+  }
+  
+  private function setPaymentToDb($params)
+  {
+    $order = $params['order'];
+		$state = $order->getCurrentState();
+
+
+		$mbDetails = $this->getMBDetails();
 			$entidade = $mbDetails[0];
 			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$order->id,$order->getOrdersTotalPaid());
 			$total = Tools::displayPrice($order->getOrdersTotalPaid(), new Currency($params['order']->id_currency), false);
@@ -634,16 +704,37 @@ class Multibanco extends PaymentModule
 
 			//guardar dados em base de dados para controlo callback
 			$this->setMultibancoOrderDb($order->id,$entidade,$referencia,$order->getOrdersTotalPaid());
-		}
-		else
-			$this->smarty->assign('status', 'failed');
 
-		return $this->fetch(_PS_MODULE_DIR_ . 'multibanco/views/templates/hook/payment_return.tpl');
-	}
+  }
 
+  public function validateOrder(
+    $id_cart,
+    $id_order_state,
+    $amount_paid,
+    $payment_method = 'Unknown',
+    $message = null,
+    $extra_vars = array(),
+    $currency_special = null,
+    $dont_touch_amount = false,
+    $secure_key = false,
+    Shop $shop = null
+  )
+  {
+    if (Dispatcher::getInstance()->getController() === "AdminOrders") {
+      $id_order_state = Configuration::get('MULTIBANCO_OS_0');
+    }
 
-
-
+    parent::validateOrder($id_cart,
+      $id_order_state,
+      $amount_paid,
+      $payment_method,
+      $message,
+      $extra_vars,
+      $currency_special,
+      $dont_touch_amount,
+      $secure_key,
+      $shop);
+  }
 
 	public function checkCurrency($cart)
 	{
@@ -878,8 +969,8 @@ class Multibanco extends PaymentModule
 				//}
 
 				$this->updateMultibancoOrderDb($orderId);
-
-				echo 'OK...';
+				header("HTTP/1.1 200 OK");
+				//echo 'OK...';
 			}else{
 				echo 'Provavelmente j&aacute; paga...';
 			}

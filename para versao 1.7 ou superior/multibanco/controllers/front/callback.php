@@ -40,6 +40,6 @@ class MultibancoCallbackModuleFrontController extends ModuleFrontController
 			$valor = '';
 		}
 
-		echo $this->module->callBack($chave,$entidade,$referencia,$valor);
+		die($this->module->callBack($chave,$entidade,$referencia,$valor));
   }
 }

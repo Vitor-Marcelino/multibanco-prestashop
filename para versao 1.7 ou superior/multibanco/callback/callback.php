@@ -35,5 +35,6 @@
 
 	$multibanco = new multibanco();
 
-	echo $multibanco->callBack($chave,$entidade,$referencia,$valor);
+	$multibanco->callBack($chave,$entidade,$referencia,$valor);
+	exit();
 ?>
