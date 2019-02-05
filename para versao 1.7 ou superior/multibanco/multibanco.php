@@ -80,9 +80,7 @@ class Multibanco extends PaymentModule
 
   public function create_states()
   {
-	  $sql = 'SELECT * FROM `'._DB_PREFIX_.'order_state` WHERE `module_name`=("multibanco")';
-	  $order_status = Db::getInstance()->ExecuteS($sql);
-
+	  
 	  $this->order_state = 	array(
 								  array( 'ffff00', '00100000000', 'Aguardar pagamento por Multibanco',  'multibanco',  'multibanco'),
 								  array( '00ffff', '11101001000', 'Confirmado pagamento por Multibanco',	 'payment',  'multibanco')
@@ -94,9 +92,7 @@ class Multibanco extends PaymentModule
 	  FROM `'._DB_PREFIX_.'lang`
 	  ');
 	  /** /OBTENDO UMA LISTA DOS IDIOMAS  **/
-	  
-	  // verifica se já existem os estados na base de dados
-	  if(count($order_status) === 0) {
+
 		  /** INSTALANDO STATUS MULTIBANCO **/
 		  foreach ($this->order_state as $key => $value)
 		  {
@@ -151,10 +147,7 @@ class Multibanco extends PaymentModule
 				  );
 				  /** /CRIANDO A Tabela de Registo de referências multibanco  **/
 
-		  }
-	  }
-
-	  
+		  }  
 
 
 	  foreach ( $languages as $language_atual )
@@ -204,8 +197,8 @@ class Multibanco extends PaymentModule
 			unlink((dirname( dirname (dirname(__file__) ) ) .  "/mails/".$language_atual['iso_code']."/multibanco_relembrar.txt"));
 		}
 
-		//Configuration::deleteByName("MULTIBANCO_OS_0");
-		//Configuration::deleteByName("MULTIBANCO_OS_1");
+		Configuration::deleteByName("MULTIBANCO_OS_0");
+		Configuration::deleteByName("MULTIBANCO_OS_1");
 
 
 		return true;
