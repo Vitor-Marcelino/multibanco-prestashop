@@ -63,7 +63,7 @@ class MultibancoRememberModuleFrontController extends ModuleFrontController
 				'{mb_logo}' => _PS_BASE_URL_ ._MODULE_DIR_.$this->module->name.'/multibanco.jpg'
 			);
 
-			Mail::Send((int)$order->id_lang, 'multibanco_relembrar', 'Pagamento em falta...', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,null, null, null, null, _PS_MAIL_DIR_, false, (int)$order->id_shop);
+			Mail::Send((int)$order->id_lang, 'multibanco_relembrar', 'Pagamento em falta...', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,null, null, null, null, _PS_MODULE_DIR_ . 'multibanco/mails/', false, (int)$order->id_shop);
 
 			$status = "sucesso";
 		} catch (Exception $e) {
@@ -74,7 +74,7 @@ class MultibancoRememberModuleFrontController extends ModuleFrontController
 
 		$admin = rtrim($matches[0][0], "/");
 
-		$redirect =  _PS_BASE_URL_."/" . $folder . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
+		$redirect =  _PS_BASE_URL_. "/" . $folder . "/" . $admin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoenvio=".$status;
 
 		Tools::redirect($redirect);
 	}
