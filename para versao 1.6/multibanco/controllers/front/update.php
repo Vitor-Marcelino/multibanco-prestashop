@@ -57,8 +57,12 @@ class MultibancoUpdateModuleFrontController extends ModuleFrontController
 		preg_match("/admin.+\//", $_SERVER['HTTP_REFERER'], $matches, PREG_OFFSET_CAPTURE);
 
 		$admin = rtrim($matches[0][0], "/");
+		
+		$base = _PS_BASE_URL_ . "/" . $folder;
 
-		$redirect =  _PS_BASE_URL_."/" . $folder . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoatualizacao=".$status;
+		$checkAdmin = strpos( $base, $admin ) !== false ? $base : $base . "/" . $admin;
+
+		$redirect =  $checkAdmin . "/index.php?controller=AdminOrders&id_order=" . $order_id . "&vieworder&token=" . $token."&estadoatualizacao=".$status;
 
 		Tools::redirect($redirect);
 	}
