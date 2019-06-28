@@ -590,13 +590,13 @@ class Multibanco extends PaymentModule
 			$mbDetails = $this->getMBDetails();
 			$entidade = $mbDetails[0];
 			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$params['objOrder']->id,$params['total_to_pay']);
-			$total = Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false);
+			$total = round($this->format_number(Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false)), 2);
 
 			$this->smarty->assign(array(
 				'shop_name' => $this->context->shop->name,
 				'entidade' => $entidade,
 				'referencia' => $referencia,
-				'total_paid' => $total,
+				'total_paid' => $total . '€',
 				'status' => 'ok',
 				'id_order' => $params['objOrder']->id,
 				'mb_logo' => _PS_BASE_URL_ ._MODULE_DIR_.'/multibanco/multibanco.jpg'
