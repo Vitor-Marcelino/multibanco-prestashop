@@ -2,7 +2,7 @@
 	<div class="col-lg-12">
 		<div class="panel">
 			<div class="panel-heading">
-				<img src="{$this_path}logo.gif" alt="Endereço de entrega" />
+				<img src="{$logo_mb_gif}" alt="Endereço de entrega" />
 				Dados Multibanco
 			</div>
 			<div id="info">
@@ -10,7 +10,7 @@
 					<tbody>
 						<tr>
 						  <td rowspan="3">
-						  <div align="center"><img src="{$this_path}logo_mb.png" alt="" width="49"></div>
+						  <div align="center"><img src="{$logo_mb}" alt="" width="49"></div>
 						  </td>
 						  <td style="font-weight: bold; text-align: left;">Entidade:</td>
 						  <td style="text-align: left;">{$entidade}</td>
