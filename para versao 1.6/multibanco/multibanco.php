@@ -23,6 +23,7 @@ class Multibanco extends PaymentModule
 
 		$this->currencies = true;
 		$this->currencies_mode = 'checkbox';
+		
 
 		$config = Configuration::getMultiple(array('MULTIBANCO_ENTIDADE', 'MULTIBANCO_SUBENTIDADE', 'MULTIBANCO_CHAVE_ANTI_PHISHING', 'MULTIBANCO_OS_0', 'MULTIBANCO_OS_1'));
 		if (isset($config['MULTIBANCO_ENTIDADE']))
@@ -280,6 +281,11 @@ class Multibanco extends PaymentModule
         return true;
 	}
 
+	private function getMbLogoPath($mb_logo) 
+	{
+		return _PS_BASE_URL_ . _MODULE_DIR_ . '/multibanco/' . $mb_logo;
+	}
+
 	function hookdisplayAdminOrder($params)
 	{
 		if (!$this->active)
@@ -334,7 +340,8 @@ class Multibanco extends PaymentModule
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
 			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
-			'this_path' 	=> $this->curPageURL().'modules/'.$this->name.'/',
+			'logo_mb' 	=> $this->getMbLogoPath('logo_mb.png'),
+			'logo_mb_gif' 	=> $this->getMbLogoPath('logo.gif'),
 			'url_folder'	=> $url_folder_adm
 		));
 
@@ -411,6 +418,7 @@ class Multibanco extends PaymentModule
 			'estadoenvio'	=>	Tools::getValue("estadoenvio"),
 			'estadolembrete'	=>	Tools::getValue("estadolembrete"),
 			'estadoatualizacao'	=>	Tools::getValue("estadoatualizacao"),
+			'logo_mb' 	=> $this->getMbLogoPath('logo_mb.png'),
 			'this_path' 	=> $this->curPageURL().'modules/'.$this->name.'/'
 		));
 
@@ -457,7 +465,7 @@ class Multibanco extends PaymentModule
 		<table style="margin-bottom: 20px;">
 			<tr>
 				<td>
-					<img src="../modules/multibanco/logo_mb.png" style="margin-right:15px;width: 77px;">
+					<img src="'. $this->getMbLogoPath('logo_mb.png').'" style="margin-right:15px;width: 77px;">
 				</td>
 				<td>
 					<b>Este m&oacute;dulo permite o pagamento seguro por Refer&ecirc;ncia Multibanco.</b>
@@ -479,7 +487,7 @@ class Multibanco extends PaymentModule
 		$this->_html .=
 		'<form action="'.Tools::htmlentitiesUTF8($_SERVER['REQUEST_URI']).'" method="post">
 			<fieldset>
-			<legend><img src="../modules/multibanco/logo.gif" />Dados do Contracto</legend>
+			<legend><img src="'. $this->getMbLogoPath('logo.gif').'" />Dados do Contracto</legend>
 				<table border="0" width="500" cellpadding="0" cellspacing="0" id="form">
 					<tr><td width="130" style="height: 35px;">'.$this->l('Entidade').'</td><td><input type="text" name="entidade" value="'.htmlentities(Tools::getValue('entidade', $this->ifmb_entidade), ENT_COMPAT, 'UTF-8').'" style="width: 300px;" /></td></tr>
 					<tr><td width="130" style="height: 35px;">'.$this->l('Subentidade').'</td><td><input type="text" name="subentidade" value="'.htmlentities(Tools::getValue('subentidade', $this->ifmb_subentidade), ENT_COMPAT, 'UTF-8').'" style="width: 300px;" /></td></tr>
@@ -503,7 +511,7 @@ class Multibanco extends PaymentModule
 	{
 		$this->_html .='<br /><br />
 			<fieldset>
-			<legend><img src="../modules/multibanco/logo.gif" />Dados Callback</legend>
+			<legend><img src="'. $this->getMbLogoPath('logo.gif').'" />Dados Callback</legend>
 				<table border="0" cellpadding="0" cellspacing="0" id="form">
 					<tr>
 						<td width="130" style="height: 35px;">
@@ -571,7 +579,8 @@ class Multibanco extends PaymentModule
 		$this->smarty->assign(array(
 			'shop_name' => $this->context->shop->name,
 			'this_path' => $this->_path,
-			'this_path_ssl' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->name.'/'
+			'this_path_ssl' => Tools::getShopDomainSsl(true, true).__PS_BASE_URI__.'modules/'.$this->name.'/',
+			'mb_logo' => $this->getMbLogoPath('multibanco.jpg')
 		));
 		return $this->display(__FILE__, 'payment.tpl');
 	}
@@ -599,7 +608,7 @@ class Multibanco extends PaymentModule
 				'total_paid' => $total . '€',
 				'status' => 'ok',
 				'id_order' => $params['objOrder']->id,
-				'mb_logo' => _PS_BASE_URL_ ._MODULE_DIR_.'/multibanco/multibanco.jpg'
+				'mb_logo' => $this->getMbLogoPath('multibanco.jpg')
 			));
 
 			if (isset($params['objOrder']->reference) && !empty($params['objOrder']->reference))
@@ -615,7 +624,7 @@ class Multibanco extends PaymentModule
 				'{entidade}' => $entidade,
 				'{referencia}' => $referencia,
 				'{total_paid}' => $total,
-				'{mb_logo}' => _PS_BASE_URL_ ._MODULE_DIR_.'/multibanco/multibanco.jpg'
+				'{mb_logo}' => $this->getMbLogoPath('multibanco.jpg')
 			);
 
 			Mail::Send((int)$params['objOrder']->id_lang, 'multibanco', 'Dados para pagamento por Multibanco', $data, $cliente->email, $cliente->firstname.' '.$cliente->lastname,
