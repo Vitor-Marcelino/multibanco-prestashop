@@ -2,7 +2,7 @@
 	<tbody>
 		<tr>
 			<td valign="top" style="border-bottom: solid 1px #222; padding-top: 5px; padding-bottom: 5px;">
-				<img src="../modules/multibanco/logo_mb.png" border="0" style="width: 36px;">
+				<img src="{$logo_mb}" border="0" style="width: 36px;">
 			</td>
 			<td valign="middle" width="100%" style="padding-left: 10px; border-bottom: solid 1px #222; padding-top: 5px; padding-bottom: 5px; ">
 				Pagamento por Multibanco&nbsp;&nbsp;
