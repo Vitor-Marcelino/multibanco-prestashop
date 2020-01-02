@@ -21,7 +21,7 @@
 						</tr>
 						<tr>
 						  <td style="font-weight: bold; text-align: left;">Valor:</td>
-						  <td style="text-align: left;">{$valor|string_format:"%.2f"}&nbsp;&euro;</td>
+						  <td style="text-align: left;">{$valor}</td>
 						</tr>
 					</tbody>
 				</table>
