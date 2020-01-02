@@ -56,7 +56,7 @@ class MultibancoResendModuleFrontController extends ModuleFrontController
 				'{lastname}' => $cliente->lastname,
 				'{entidade}' => $entidade,
 				'{referencia}' => chunk_split($referencia, 3, ' '),
-				'{total_paid}' => $valor . ' €',
+				'{total_paid}' => $valor . ' ' . Currency::getDefaultCurrency()->sign,
 				'{mb_logo}' => _PS_BASE_URL_ ._MODULE_DIR_.$this->module->name.'/multibanco.jpg'
 			);
 
