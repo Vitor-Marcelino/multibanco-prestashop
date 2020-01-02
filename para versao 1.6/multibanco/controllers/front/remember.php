@@ -47,7 +47,7 @@ class MultibancoRememberModuleFrontController extends ModuleFrontController
 
 			$entidade = $mbOrderDetails["entidade"];
 			$referencia = $mbOrderDetails["referencia"];
-			$valor = $mbOrderDetails["valor"];
+			$valor = Tools::displayPrice($mbOrderDetails["valor"], Currency::getDefaultCurrency(), false)
 
 			$cliente = new Customer($order->id_customer);
 
