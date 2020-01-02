@@ -318,7 +318,7 @@ class Multibanco extends PaymentModule
 		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($order_id_extra);
 		$entidade = $mbOrderDetails["entidade"];
 		$referencia = $mbOrderDetails["referencia"];
-		$valor = $mbOrderDetails["valor"] . ' ' . Currency::getDefaultCurrency()->sign;
+		$valor = Tools::displayPrice($mbOrderDetails["valor"], Currency::getDefaultCurrency(), false);
 
 		$estado = "";
 
@@ -385,7 +385,7 @@ class Multibanco extends PaymentModule
 
 		$entidade = $mbOrderDetails["entidade"];
 		$referencia = $mbOrderDetails["referencia"];
-		$valor = $mbOrderDetails["valor"];
+		$valor = Tools::displayPrice($mbOrderDetails["valor"], Currency::getDefaultCurrency(), false);
 
 		//verifica se o método da encomenda é mesmo este ou não...
 		if($order->payment != $this->displayName)
