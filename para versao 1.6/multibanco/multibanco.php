@@ -599,13 +599,15 @@ class Multibanco extends PaymentModule
 			$mbDetails = $this->getMBDetails();
 			$entidade = $mbDetails[0];
 			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$params['objOrder']->id,$params['total_to_pay']);
-			$total = Tools::displayPrice($params['total_to_pay'], $params['currencyObj'], false);
+			$total = Tools::ps_round($params['total_to_pay'], Configuration::get('PS_PRICE_ROUND_MODE'));
+			$displayPrice = Tools::displayPrice($total, $params['currencyObj'], false);
+			
 
 			$this->smarty->assign(array(
 				'shop_name' => $this->context->shop->name,
 				'entidade' => $entidade,
 				'referencia' => $referencia,
-				'total_paid' => $total,
+				'total_paid' => $displayPrice,
 				'status' => 'ok',
 				'id_order' => $params['objOrder']->id,
 				'mb_logo' => $this->getMbLogoPath('multibanco.jpg')
@@ -623,7 +625,7 @@ class Multibanco extends PaymentModule
 				'{lastname}' => $cliente->lastname,
 				'{entidade}' => $entidade,
 				'{referencia}' => $referencia,
-				'{total_paid}' => $total,
+				'{total_paid}' => $displayPrice,
 				'{mb_logo}' => $this->getMbLogoPath('multibanco.jpg')
 			);
 
@@ -631,7 +633,7 @@ class Multibanco extends PaymentModule
 					null, null, null, null, dirname(__FILE__) . '/mails/', false, (int)$params['objOrder']->id_shop);
 
 			//guardar dados em base de dados para controlo callback
-			$this->setMultibancoOrderDb($params['objOrder']->id,$entidade,$referencia,$params['total_to_pay']);
+			$this->setMultibancoOrderDb($params['objOrder']->id,$entidade, $referencia, $total);
 		}
 		else
 			$this->smarty->assign('status', 'failed');
