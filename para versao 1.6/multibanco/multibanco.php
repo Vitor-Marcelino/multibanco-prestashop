@@ -318,7 +318,7 @@ class Multibanco extends PaymentModule
 		$mbOrderDetails = $this->getMultibancoOrderDetailsDb($order_id_extra);
 		$entidade = $mbOrderDetails["entidade"];
 		$referencia = $mbOrderDetails["referencia"];
-		$valor = Tools::displayPrice($mbOrderDetails["valor"], Currency::getDefaultCurrency(), false);
+		$valor = $mbOrderDetails["valor"] . ' ' . Currency::getDefaultCurrency()->sign;
 
 		$estado = "";
 
@@ -385,7 +385,7 @@ class Multibanco extends PaymentModule
 
 		$entidade = $mbOrderDetails["entidade"];
 		$referencia = $mbOrderDetails["referencia"];
-		$valor = Tools::displayPrice($mbOrderDetails["valor"], Currency::getDefaultCurrency(), false);
+		$valor = $mbOrderDetails["valor"] . ' ' . Currency::getDefaultCurrency()->sign;
 
 		//verifica se o método da encomenda é mesmo este ou não...
 		if($order->payment != $this->displayName)
@@ -600,7 +600,7 @@ class Multibanco extends PaymentModule
 			$entidade = $mbDetails[0];
 			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$params['objOrder']->id,$params['total_to_pay']);
 			$total = Tools::ps_round($params['total_to_pay'], Configuration::get('PS_PRICE_ROUND_MODE'));
-			$displayPrice = Tools::displayPrice($total, $params['currencyObj'], false);
+			$displayPrice = $total . ' ' . Currency::getDefaultCurrency()->sign;
 			
 
 			$this->smarty->assign(array(
