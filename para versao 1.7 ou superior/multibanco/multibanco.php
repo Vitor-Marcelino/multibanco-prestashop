@@ -663,7 +663,7 @@ class Multibanco extends PaymentModule
 
 		$mbDetails = $this->getMBDetails();
 			$entidade = $mbDetails[0];
-			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$order->id, $params['total_to_pay']));
+			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$order->id, $params['total_to_pay']);
 			$total = Tools::displayPrice($order->getOrdersTotalPaid(), new Currency($params['order']->id_currency), false);
 
 			$this->smarty->assign(array(
