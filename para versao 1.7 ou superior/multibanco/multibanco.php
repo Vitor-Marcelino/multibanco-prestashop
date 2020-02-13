@@ -333,7 +333,7 @@ class Multibanco extends PaymentModule
 			return;
 
 		$order_id = $params['id_order'];
-
+		
 		$order = new Order($order_id);
 
 		//verifica se o método da encomenda é mesmo este ou não...
@@ -663,7 +663,7 @@ class Multibanco extends PaymentModule
 
 		$mbDetails = $this->getMBDetails();
 			$entidade = $mbDetails[0];
-			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$params['objOrder']->id, $order->getOrdersTotalPaid());
+			$referencia = $this->GenerateMbRef($mbDetails[0],$mbDetails[1],$order->id, $order->getOrdersTotalPaid());
 			$total = Tools::displayPrice($order->getOrdersTotalPaid(), new Currency($order->id_currency), false);
 
 			$this->smarty->assign(array(
@@ -696,7 +696,7 @@ class Multibanco extends PaymentModule
 					null, null, null, null, dirname(__FILE__) . '/mails/', false, (int)$order->id_shop);
 
 			//guardar dados em base de dados para controlo callback
-			$this->setMultibancoOrderDb($order->id,$entidade,$referencia,$order->getOrdersTotalPaid());
+			$this->setMultibancoOrderDb($order->id,$entidade,$referencia, $order->getOrdersTotalPaid());
 
   }
 
@@ -770,6 +770,7 @@ class Multibanco extends PaymentModule
 		$orderidcheck = $this->getMultibancoOrderDb($entidade,$referencia,$valor,$order,true);
 
 		if($orderidcheck<1){
+			
 			Db::getInstance()->Execute
 				('
 					INSERT INTO `' . _DB_PREFIX_ . 'multibanco`
